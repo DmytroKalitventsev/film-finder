@@ -11,7 +11,114 @@
 
 <body>
 	<div class="wrapper">
-		
+		<div class="films-search">
+			<h2 class="films-search__title">Search:</h2>
+			<form class="search-form" name="filmsSearch">
+				<fieldset class="search-form__fieldset" name="dataFilmsSearch">
+					<label class="search-form__label" name="title">
+						<span class="search-form__label-title">Title:</span>
+						<input class="search-form__input field-form" type="text">
+					</label>
+					<label class="search-form__label">
+						<span class="search-form__label-title">Type:</span>
+						<select class="search-form__select field-form" name="type">
+							<option class="search-form__option" value="movie">Movie</option>
+							<option class="search-form__option" value="movie">Series</option>
+							<option class="search-form__option" value="movie">Episode</option>
+						</select>
+					</label>
+				</fieldset>
+				<button class="search-form__button" type="submit">Search</button>
+			</form>
+		</div>
+		<div class="film-cards">
+			<h2 class="film-cards__title">Films:</h2>
+			<div class="film-cards__wrap">
+				<div class="film-card">
+					<div class="film-card__poster">
+						<img src="img/poster.jpg" alt="poster">
+					</div>
+					<span class="film-card__type">movie</span>
+					<h2 class="film-card__title">Hello, My Name Is Doris</h2>
+					<span class="film-card__year">2015</span>
+					<button class="film-card__details">Details</button>
+				</div>
+				<div class="film-card">
+					<div class="film-card__poster">
+						<img src="img/poster.jpg" alt="poster">
+					</div>
+					<span class="film-card__type">movie</span>
+					<h2 class="film-card__title">Hello, My Name Is Doris</h2>
+					<span class="film-card__year">2015</span>
+					<button class="film-card__details">Details</button>
+				</div>
+				<div class="film-card">
+					<div class="film-card__poster">
+						<img src="img/poster.jpg" alt="poster">
+					</div>
+					<span class="film-card__type">movie</span>
+					<h2 class="film-card__title">Hello, My Name Is Doris</h2>
+					<span class="film-card__year">2015</span>
+					<button class="film-card__details">Details</button>
+				</div>
+			</div>
+		</div>
+		<div class="films-pagination">
+			<button class="films-pagination__change">&#60;&#60;</button>
+			<button class="films-pagination__change">1</button>
+			<button class="films-pagination__change">2</button>
+			<button class="films-pagination__change">3</button>
+			<button class="films-pagination__change">4</button>
+			<button class="films-pagination__change">5</button>
+			<button class="films-pagination__change">6</button>
+			<button class="films-pagination__change">&#62;&#62;</button>
+		</div>
+		<div class="films-details">
+			<h2 class="films-details__title">Film info:</h2>
+			<div class="film-details">
+				<div class="film-details__poster">
+					<img src="img/poster.jpg" alt="poster">
+				</div>
+				<div class="film-details__title-wrap">
+					<span class="film-details__title">Title:</span>
+					<span class="film-details__description">Hello, My name Is Doris</span>
+				</div>
+				<div class="film-details__title-wrap">
+					<span class="film-details__title">Released:</span>
+					<span class="film-details__description">01 Apr 2016</span>
+				</div>
+				<div class="film-details__title-wrap">
+					<span class="film-details__title">Genre:</span>
+					<span class="film-details__description">Comedy, Drama, Romance</span>
+				</div>
+				<div class="film-details__title-wrap">
+					<span class="film-details__title">Country:</span>
+					<span class="film-details__description">USA</span>
+				</div>
+				<div class="film-details__title-wrap">
+					<span class="film-details__title">Director:</span>
+					<span class="film-details__description">Michael Showalter</span>
+				</div>
+				<div class="film-details__title-wrap">
+					<span class="film-details__title">Writer:</span>
+					<span class="film-details__description">
+						Laura Terruso (screenplay), Michael Showalter
+						(screenplay), Laura Terruso (short film "Doris &
+						the Intern")
+					</span>
+				</div>
+				<div class="film-details__title-wrap">
+					<span class="film-details__title">Actors:</span>
+					<span class="film-details__description">
+						Sally Field, Edmund Lupinski, Norma Michaels, Stephen Root
+					</span>
+				</div>
+				<div class="film-details__title-wrap">
+					<span class="film-details__title">Awards:</span>
+					<span class="film-details__description">2 wins & 10 nominations.</span>
+				</div>
+			</div>
+		</div>
 	</div>
 
 	<script src="script.js"></script>
