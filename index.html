@@ -14,17 +14,17 @@
 		<div class="films-search">
 			<h2 class="films-search__title">Search:</h2>
 			<form class="search-form" name="filmsSearch">
-				<fieldset class="search-form__fieldset" name="dataFilmsSearch">
-					<label class="search-form__label" name="title">
+				<fieldset class="search-form__fieldset" name="filmsData">
+					<label class="search-form__label">
 						<span class="search-form__label-title">Title:</span>
-						<input class="search-form__input field-form" type="text">
+						<input class="search-form__input field-form" name="title" type="text">
 					</label>
 					<label class="search-form__label">
 						<span class="search-form__label-title">Type:</span>
 						<select class="search-form__select field-form" name="type">
 							<option class="search-form__option" value="movie">Movie</option>
-							<option class="search-form__option" value="movie">Series</option>
-							<option class="search-form__option" value="movie">Episode</option>
+							<option class="search-form__option" value="series">Series</option>
+							<option class="search-form__option" value="episode">Episode</option>
 						</select>
 					</label>
 				</fieldset>
@@ -62,16 +62,16 @@
 					<button class="film-card__details">Details</button>
 				</div>
 			</div>
-		</div>
-		<div class="films-pagination">
-			<button class="films-pagination__change">&#60;&#60;</button>
-			<button class="films-pagination__change">1</button>
-			<button class="films-pagination__change">2</button>
-			<button class="films-pagination__change">3</button>
-			<button class="films-pagination__change">4</button>
-			<button class="films-pagination__change">5</button>
-			<button class="films-pagination__change">6</button>
-			<button class="films-pagination__change">&#62;&#62;</button>
+			<div class="films-pagination">
+				<button class="films-pagination__change">&#60;&#60;</button>
+				<button class="films-pagination__change">1</button>
+				<button class="films-pagination__change">2</button>
+				<button class="films-pagination__change">3</button>
+				<button class="films-pagination__change">4</button>
+				<button class="films-pagination__change">5</button>
+				<button class="films-pagination__change">6</button>
+				<button class="films-pagination__change">&#62;&#62;</button>
+			</div>
 		</div>
 		<div class="films-details">
 			<h2 class="films-details__title">Film info:</h2>
