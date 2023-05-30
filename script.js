@@ -26,11 +26,7 @@ class FilmsFinder {
 		return this.wrap.querySelector('.film-cards');
 	}
 
-	get filmCardsWrap() {
-		return this.wrap.querySelector('.film-cards__wrap');
-	}
-
-	get filmsDetailsWrap() {
+	get filmsDetails() {
 		return this.wrap.querySelector('.films-details');
 	}
 
@@ -72,15 +68,18 @@ class FilmsFinder {
 
 			formData[input.name] = value;
 			this.#url = `${this.#api}&s=${formData.title}&type=${formData.type}&page=1`;
+
 			this.firstInput.value = '';
+			this.filmCards.innerHTML = '';
+			this.filmsDetails.innerHTML = '';
 		}
 
 		if (!isFormValid) return;
 
-		this.getFilmsList(this.#url);
+		this.getListFilms(this.#url);
 	}
 
-	getFilmsList(url) {
+	getListFilms(url) {
 		this.getRequest(url)
 			.then(res => {
 				if (res.Response === 'True') {
@@ -88,30 +87,35 @@ class FilmsFinder {
 				};
 
 				if (res.Response === 'False') {
-					this.filmCardsWrap.innerHTML = `<div class="film-cards__not-found">${res.Error}</div>`;
+					this.filmCards.innerHTML = `<div class="film-cards__not-found">${res.Error}</div>`;
 				}
 			})
 			.catch(err => console.error(err));
 	}
 
+	getPoster(dataPoster) {
+		return (dataPoster === 'N/A') ? 'img/poster-missing.jpg' : dataPoster;
+	}
+
 	renderFilmsCard(dataFilms) {
-		this.filmCardsWrap.innerHTML = '';
-		
-		dataFilms.forEach(film => {
-			const cards = `<div class="film-card" data-id="${film.imdbID}">
+		const cards = dataFilms
+			.map(film => {
+				return `<div class="film-card" data-id="${film.imdbID}">
 							<div class="film-card__poster">
-								<img src="${film.Poster}" alt="poster">
+								<img src="${this.getPoster(film.Poster)}" alt="poster">
 							</div>
 							<span class="film-card__type">${film.Type}</span>
 							<h2 class="film-card__title">${film.Title}</h2>
 							<span class="film-card__year">${film.Year}</span>
 							<button class="film-card__details">Details</button>
 						</div>`
+			})
+			.join('');
 
-			this.filmCardsWrap.insertAdjacentHTML('beforeEnd', cards);
-		});
+		this.filmCards.insertAdjacentHTML('afterBegin', `<h2 class="film-cards__title">Films:</h2>`);
+		this.filmCards.insertAdjacentHTML('beforeEnd', `<div class="film-cards__wrap">${cards}</div>`);
 
-		this.filmCardsWrap.addEventListener('click', this.showDetailsFilm.bind(this));
+		this.filmCards.addEventListener('click', this.showDetailsFilm.bind(this));
 	}
 
 	showDetailsFilm(e) {
@@ -134,7 +138,7 @@ class FilmsFinder {
 		const str = `<h2 class="films-details__title">Film info:</h2>
 					<div class="film-details">
 						<div class="film-details__poster">
-							<img src="${dataFilm.Poster}" alt="poster">
+							<img src="${this.getPoster(dataFilm.Poster)}" alt="poster">
 						</div>
 						<div class="film-details__title-wrap">
 							<span class="film-details__title">Title:</span>
@@ -170,7 +174,7 @@ class FilmsFinder {
 						</div>
 					</div>`;
 
-		this.filmsDetailsWrap.innerHTML = str;
+		this.filmsDetails.innerHTML = str;
 	}
 
 	init() {
