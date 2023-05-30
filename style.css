@@ -29,6 +29,7 @@ h2 {
 
 button {
 	padding: 5px;
+	cursor: pointer;
 }
 
 svg,
@@ -42,13 +43,14 @@ img {
 	align-items: center;
 	justify-items: center;
 	font-size: 50px;
+	font-weight: bold;
 	height: 100%;
 }
 
 .wrapper {
 	max-width: 1000px;
 	margin: 20px auto;
-	padding: 0 15px;
+	padding: 0 15px 30px;
 	display: grid;
 	row-gap: 30px;
 }
@@ -92,11 +94,11 @@ img {
 	padding: 5px;
 }
 
-.search-form__input {
-	
-}
+.search-form__input {}
 
-.search-form__select {}
+.search-form__select {
+	cursor: pointer;
+}
 
 .search-form__option {}
 
@@ -115,6 +117,12 @@ img {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 	gap: 20px;
+}
+
+.film-cards__not-found {
+	font-size: 1.25rem;
+	font-weight: bold;
+	text-align: center;
 }
 
 .film-card {
@@ -153,6 +161,10 @@ img {
 
 .films-pagination__change {
 	padding: 5px 11px;
+}
+
+.films-pagination__change_active {
+	border: 3px solid #000000;
 }
 
 .films-details {
