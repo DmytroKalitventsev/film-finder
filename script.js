@@ -4,6 +4,7 @@ class FilmsFinder {
 	#api = 'http://www.omdbapi.com/?apikey=2163e12a';
 	#urlSearch = null;
 	#urlDescr = null;
+	#currentPage = 1;
 
 	constructor() { }
 
@@ -68,14 +69,12 @@ class FilmsFinder {
 			}
 
 			formData[input.name] = value;
-			this.#urlSearch = `${this.#api}&s=${formData.title}&type=${formData.type}&page=1`;
-
-			this.firstInput.value = '';
-			this.filmCards.innerHTML = '';
-			this.filmInfo.innerHTML = '';
 		}
 
 		if (!isFormValid) return;
+
+		this.#urlSearch = `${this.#api}&s=${formData.title}&type=${formData.type}`;
+		this.#currentPage = 1;
 
 		this.getListFilms(this.#urlSearch);
 	}
@@ -83,9 +82,11 @@ class FilmsFinder {
 	getListFilms(url) {
 		this.getRequest(url)
 			.then(res => {
+				this.filmInfo.innerHTML = '';
+
 				if (res.Response === 'True') {
 					this.renderFilmsCard(res.Search);
-					this.renderBtnPagination(res.totalResults);
+					this.renderBtnPagination(res.totalResults, this.#currentPage);
 				};
 
 				if (res.Response === 'False') {
@@ -119,17 +120,69 @@ class FilmsFinder {
 		const elements = `<h2 class="film-cards__title">Films:</h2>
 						<ul class="film-cards__list">${cards}</ul>`;
 
-		this.filmCards.insertAdjacentHTML('afterBegin', elements);
+		this.filmCards.innerHTML = elements;
 
 		if (dataFilms.length === 1) {
 			this.filmCards.querySelector('.film-cards__list').style.gridTemplateColumns = 'repeat(auto-fit, minmax(250px, 400px))';
 		}
 	}
 
-	renderBtnPagination(countFilms) {
-		if (countFilms <= 10) return;
+	renderBtnPagination(totalFilms, currentPage) {
+		const totalPages = Math.ceil(totalFilms / 10);
+		const maxVisiblePages = 5;
 
-		console.log(countFilms);
+		let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+		let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+		let buttons = '';
+
+		startPage = Math.max(1, endPage - maxVisiblePages + 1);
+
+		if (currentPage > 1) {
+			buttons += `<button class="pagination__first-page" data-page="1">&#60;&#60;</button>`;
+		}
+
+		for (let pageLength = startPage; pageLength <= endPage; pageLength++) {
+			const activeButton = (currentPage === pageLength) ? 'pagination__numb_active' : '';
+
+			buttons += `<button class="pagination__numb ${activeButton}">${pageLength}</button>`;
+		}
+
+		if (currentPage < totalPages) {
+			buttons += `<button class="pagination__last-page" data-page="${totalPages}">&#62;&#62;</button>`;
+		}
+
+		const elements = `<div class="pagination">${buttons}</div>`;
+
+		this.filmCards.insertAdjacentHTML('beforeEnd', elements);
+	}
+
+	changePage(e) {
+		const t = e.target;
+		const firstPage = t.closest('.pagination__first-page');
+		const lastPage = t.closest('.pagination__last-page');
+
+		if (t.closest('.pagination__numb')) {
+			this.#currentPage = +t.innerText;
+
+			this.getListFilms(`${this.#urlSearch}&page=${this.#currentPage}`);
+		}
+
+		if (firstPage || lastPage) {
+			this.#currentPage = +t.dataset.page;
+
+			this.getListFilms(`${this.#urlSearch}&page=${this.#currentPage}`);
+
+			if (firstPage) {
+				const next = firstPage.nextElementSibling;
+				next.classList.add('pagination__numb_active');
+			}
+
+			if (lastPage) {
+				const prev = lastPage.previousElementSibling;
+				prev.classList.add('pagination__numb_active');
+			}
+		}
 	}
 
 	showDetailsFilm(e) {
@@ -183,7 +236,9 @@ class FilmsFinder {
 			.then(() => {
 				this.formSearch.addEventListener('submit', this.getDataSearch.bind(this));
 				this.firstInput.addEventListener('input', () => this.firstInput.style.outline = null);
+
 				this.filmCards.addEventListener('click', this.showDetailsFilm.bind(this));
+				this.filmCards.addEventListener('click', this.changePage.bind(this));
 			})
 			.catch(err => {
 				document.body.innerHTML = `<div class="error">Error ${err} :(</div>`;

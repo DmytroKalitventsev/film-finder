@@ -151,22 +151,6 @@ img {
 
 .film-card__details {}
 
-.films-pagination {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(30px, auto));
-	justify-content: center;
-	justify-items: center;
-	margin-top: 20px;
-}
-
-.films-pagination__page {
-	padding: 5px 11px;
-}
-
-.films-pagination__page_active {
-	border: 3px solid #000000;
-}
-
 .film-info {
 	display: grid;
 	row-gap: 10px;
@@ -224,3 +208,21 @@ img {
 }
 
 .film-details__description {}
+
+.pagination {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(30px, auto));
+	justify-content: center;
+	justify-items: center;
+	margin-top: 20px;
+}
+
+.pagination button {
+	padding: 5px 14px;
+}
+
+.pagination__numb {}
+
+.pagination__numb_active {
+	border: 3px solid #000000;
+}
