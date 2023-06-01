@@ -1,7 +1,7 @@
 'use strict'
 
 class FilmsFinder {
-	#api = 'http://www.omdbapi.com/?apikey=2163e12a';
+	#api = 'https://www.omdbapi.com/?apikey=2163e12a';
 	#urlSearch = null;
 	#urlDescr = null;
 	#currentPage = 1;
