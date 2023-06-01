@@ -100,6 +100,17 @@ class FilmsFinder {
 		return (dataPoster === 'N/A') ? 'img/poster-missing.jpg' : dataPoster;
 	}
 
+	sliceText(text) {
+		const maxLetter = 5;
+		const words = text.split(' ');
+
+		if (words.length > maxLetter) {
+			text = words.slice(0, maxLetter).join(' ') + "...";
+		}
+
+		return text;
+	}
+
 	renderFilmsCard(dataFilms) {
 		const cards = dataFilms
 			.map(film => {
@@ -110,7 +121,7 @@ class FilmsFinder {
 								<img src="${this.getPoster(film.Poster)}" alt="poster">
 							</div>
 							<span class="film-card__type">${film.Type}</span>
-							<h2 class="film-card__title">${film.Title}</h2>
+							<h2 class="film-card__title">${this.sliceText(film.Title)}</h2>
 							<span class="film-card__year">${year}</span>
 							<button class="film-card__details">Details</button>
 						</li>`;
