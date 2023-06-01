@@ -2,7 +2,8 @@
 
 class FilmsFinder {
 	#api = 'http://www.omdbapi.com/?apikey=2163e12a';
-	#url = null;
+	#urlSearch = null;
+	#urlDescr = null;
 
 	constructor() { }
 
@@ -26,8 +27,8 @@ class FilmsFinder {
 		return this.wrap.querySelector('.film-cards');
 	}
 
-	get filmsDetails() {
-		return this.wrap.querySelector('.films-details');
+	get filmInfo() {
+		return this.wrap.querySelector('.film-info');
 	}
 
 	getRequest(url) {
@@ -67,16 +68,16 @@ class FilmsFinder {
 			}
 
 			formData[input.name] = value;
-			this.#url = `${this.#api}&s=${formData.title}&type=${formData.type}&page=1`;
+			this.#urlSearch = `${this.#api}&s=${formData.title}&type=${formData.type}&page=1`;
 
 			this.firstInput.value = '';
 			this.filmCards.innerHTML = '';
-			this.filmsDetails.innerHTML = '';
+			this.filmInfo.innerHTML = '';
 		}
 
 		if (!isFormValid) return;
 
-		this.getListFilms(this.#url);
+		this.getListFilms(this.#urlSearch);
 	}
 
 	getListFilms(url) {
@@ -84,6 +85,7 @@ class FilmsFinder {
 			.then(res => {
 				if (res.Response === 'True') {
 					this.renderFilmsCard(res.Search);
+					this.renderBtnPagination(res.totalResults);
 				};
 
 				if (res.Response === 'False') {
@@ -100,22 +102,34 @@ class FilmsFinder {
 	renderFilmsCard(dataFilms) {
 		const cards = dataFilms
 			.map(film => {
-				return `<div class="film-card" data-id="${film.imdbID}">
+				const year = (film.Year.length === 5) ? film.Year.slice(0, -1) : film.Year;
+
+				return `<li class="film-card" data-id="${film.imdbID}">
 							<div class="film-card__poster">
 								<img src="${this.getPoster(film.Poster)}" alt="poster">
 							</div>
 							<span class="film-card__type">${film.Type}</span>
 							<h2 class="film-card__title">${film.Title}</h2>
-							<span class="film-card__year">${film.Year}</span>
+							<span class="film-card__year">${year}</span>
 							<button class="film-card__details">Details</button>
-						</div>`
+						</li>`;
 			})
 			.join('');
 
-		this.filmCards.insertAdjacentHTML('afterBegin', `<h2 class="film-cards__title">Films:</h2>`);
-		this.filmCards.insertAdjacentHTML('beforeEnd', `<div class="film-cards__wrap">${cards}</div>`);
+		const elements = `<h2 class="film-cards__title">Films:</h2>
+						<ul class="film-cards__list">${cards}</ul>`;
 
-		this.filmCards.addEventListener('click', this.showDetailsFilm.bind(this));
+		this.filmCards.insertAdjacentHTML('afterBegin', elements);
+
+		if (dataFilms.length === 1) {
+			this.filmCards.querySelector('.film-cards__list').style.gridTemplateColumns = 'repeat(auto-fit, minmax(250px, 400px))';
+		}
+	}
+
+	renderBtnPagination(countFilms) {
+		if (countFilms <= 10) return;
+
+		console.log(countFilms);
 	}
 
 	showDetailsFilm(e) {
@@ -124,9 +138,9 @@ class FilmsFinder {
 		if (btnDetails) {
 			const id = btnDetails.parentElement.dataset.id;
 
-			this.#url = `${this.#api}&i=${id}`;
+			this.#urlDescr = `${this.#api}&i=${id}`;
 
-			this.getRequest(this.#url)
+			this.getRequest(this.#urlDescr)
 				.then(res => {
 					this.renderDetailsCardFilm(res);
 				})
@@ -135,46 +149,33 @@ class FilmsFinder {
 	}
 
 	renderDetailsCardFilm(dataFilm) {
-		const str = `<h2 class="films-details__title">Film info:</h2>
-					<div class="film-details">
-						<div class="film-details__poster">
-							<img src="${this.getPoster(dataFilm.Poster)}" alt="poster">
-						</div>
-						<div class="film-details__title-wrap">
-							<span class="film-details__title">Title:</span>
-							<span class="film-details__description">${dataFilm.Title}</span>
-						</div>
-						<div class="film-details__title-wrap">
-							<span class="film-details__title">Released:</span>
-							<span class="film-details__description">${dataFilm.Released}</span>
-						</div>
-						<div class="film-details__title-wrap">
-							<span class="film-details__title">Genre:</span>
-							<span class="film-details__description">${dataFilm.Genre}</span>
-						</div>
-						<div class="film-details__title-wrap">
-							<span class="film-details__title">Country:</span>
-							<span class="film-details__description">${dataFilm.Country}</span>
-						</div>
-						<div class="film-details__title-wrap">
-							<span class="film-details__title">Director:</span>
-							<span class="film-details__description">${dataFilm.Director}</span>
-						</div>
-						<div class="film-details__title-wrap">
-							<span class="film-details__title">Writer:</span>
-							<span class="film-details__description">${dataFilm.Writer}</span>
-						</div>
-						<div class="film-details__title-wrap">
-							<span class="film-details__title">Actors:</span>
-							<span class="film-details__description">${dataFilm.Actors}</span>
-						</div>
-						<div class="film-details__title-wrap">
-							<span class="film-details__title">Awards:</span>
-							<span class="film-details__description">${dataFilm.Awards}</span>
-						</div>
-					</div>`;
+		const excludedTitle = [
+			'Poster', 'BoxOffice', 'DVD', 'Language', 'Metascore', 'Plot',
+			'Production', 'Rated', 'Ratings', 'Response', 'Runtime', 'totalSeasons',
+			'Type', 'Website', 'Year', 'imdbID', 'imdbRating', 'imdbVotes',
+		];
+		let items = '';
 
-		this.filmsDetails.innerHTML = str;
+		for (const title in dataFilm) {
+			const descr = dataFilm[title];
+
+			if (!excludedTitle.includes(title) && descr != 'N/A') {
+				items += `<li class="film-details__item">
+							<span class="film-details__title">${title}</span>
+							<span class="film-details__description">${descr}</span>
+						</li>`;
+			}
+		}
+
+		const elements = `<h2 class="film-info__title">Film info:</h2>
+						<div class="film-details">
+							<div class="film-details__poster">
+								<img src="${this.getPoster(dataFilm.Poster)}" alt="poster">
+							</div>
+							<ul class="film-details__list">${items}</ul>
+						</div>`;
+
+		this.filmInfo.innerHTML = elements;
 	}
 
 	init() {
@@ -182,9 +183,10 @@ class FilmsFinder {
 			.then(() => {
 				this.formSearch.addEventListener('submit', this.getDataSearch.bind(this));
 				this.firstInput.addEventListener('input', () => this.firstInput.style.outline = null);
+				this.filmCards.addEventListener('click', this.showDetailsFilm.bind(this));
 			})
 			.catch(err => {
-				document.body.innerHTML = `<div class="error">Error ${err}:(</div>`;
+				document.body.innerHTML = `<div class="error">Error ${err} :(</div>`;
 			});
 	}
 }
