@@ -177,7 +177,7 @@ img {
 	border-radius: 5px;
 }
 
-@media (max-width: 500px) {
+@media (max-width: 550px) {
 	.film-details {
 		grid-template-columns: 1fr;
 		row-gap: 20px;
@@ -196,7 +196,7 @@ img {
 	object-fit: cover;
 }
 
-@media (max-width: 500px) {
+@media (max-width: 550px) {
 	.film-details__poster {
 		order: 2;
 	}
@@ -204,7 +204,14 @@ img {
 
 .film-details__list {
 	display: grid;
-	row-gap: 20px;
+	row-gap: 35px;
+	align-self: start;
+}
+
+@media (max-width: 650px) {
+	.film-details__list {
+		row-gap: 20px;
+	}
 }
 
 .film-details__item {
@@ -213,7 +220,7 @@ img {
 	align-items: center;
 }
 
-@media (max-width: 500px) {
+@media (max-width: 550px) {
 	.film-details__item {
 		grid-template-columns: minmax(100px, auto) 1fr;
 		order: 1;
