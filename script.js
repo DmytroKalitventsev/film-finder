@@ -32,6 +32,13 @@ class FilmsFinder {
 		return this.wrap.querySelector('.film-info');
 	}
 
+	get animateLoad() {
+		return `<div class="load">
+					<div></div>
+					<div></div>
+				</div>`;
+	}
+
 	getRequest(url) {
 		return fetch(url)
 			.then(response => {
@@ -70,17 +77,18 @@ class FilmsFinder {
 	}
 
 	getListFilms(url) {
+		this.filmCards.innerHTML = this.animateLoad;
+
 		this.getRequest(url)
 			.then(response => {
-				this.filmCards.innerHTML = '';
-				this.filmInfo.innerHTML = '';
-
 				if (response.Response === 'False') {
 					throw response.Error;
 				}
+				
+				this.filmCards.innerHTML = '';
+				this.filmInfo.innerHTML = '';
 
-				this.renderFilmsCard(response.Search);
-				this.renderBtnPagination(response.totalResults, this.#currentPage);
+				this.renderFilmsCard(response.Search, response.totalResults);
 			})
 			.catch(error => {
 				this.filmCards.innerHTML = `<div class="film-cards__not-found">${error}</div>`;
@@ -90,24 +98,18 @@ class FilmsFinder {
 	getPoster(dataPoster) {
 		return new Promise((resolve, reject) => {
 			const img = new Image();
+			const newPicture = 'img/poster-missing.jpg';
 
-			img.onload = () => {
-				resolve(dataPoster);
-			};
-
-			img.onerror = () => {
-				reject('img/poster-missing.jpg');
-			};
-
-			if (dataPoster === 'N/A') {
-				reject('img/poster-missing.jpg');
-			}
+			img.onload = () => resolve(dataPoster);
+			img.onerror = () => reject(newPicture);
+			dataPoster = (dataPoster === 'N/A') ? newPicture : dataPoster;
 
 			img.src = dataPoster;
 		})
-			.catch(error => {
-				console.error(error);
-				return 'img/poster-missing.jpg';
+			.catch(newUrl => {
+				console.error('The poster has been replaced by ' + newUrl);
+
+				return newUrl;
 			});
 	}
 
@@ -122,7 +124,7 @@ class FilmsFinder {
 		return text;
 	}
 
-	renderFilmsCard(dataFilms) {
+	renderFilmsCard(dataFilms, totalResults) {
 		const cards = dataFilms
 			.map(film => {
 				const year = (film.Year.length === 5) ? film.Year.slice(0, -1) : film.Year;
@@ -147,8 +149,12 @@ class FilmsFinder {
 
 			this.filmCards.insertAdjacentHTML('afterBegin', elements);
 
+			this.renderBtnPagination(totalResults, this.#currentPage);
+
 			if (dataFilms.length === 1) {
-				this.filmCards.querySelector('.film-cards__list').style.gridTemplateColumns = 'repeat(auto-fit, minmax(250px, 400px))';
+				const filmCardsList = this.filmCards.querySelector('.film-cards__list');
+
+				filmCardsList.style.gridTemplateColumns = 'repeat(auto-fit, minmax(250px, 400px))';
 			}
 		});
 	}
@@ -209,6 +215,8 @@ class FilmsFinder {
 				prev.classList.add('pagination__numb_active');
 			}
 		}
+
+		
 	}
 
 	showDetailsFilm(e) {
