@@ -34,8 +34,7 @@ class FilmsFinder {
 
 	get animateLoad() {
 		return `<div class="load">
-					<div></div>
-					<div></div>
+					<img src="img/load.svg" alt="load">
 				</div>`;
 	}
 
@@ -84,14 +83,14 @@ class FilmsFinder {
 				if (response.Response === 'False') {
 					throw response.Error;
 				}
-				
+
 				this.filmCards.innerHTML = '';
 				this.filmInfo.innerHTML = '';
 
 				this.renderFilmsCard(response.Search, response.totalResults);
 			})
 			.catch(error => {
-				this.filmCards.innerHTML = `<div class="film-cards__not-found">${error}</div>`;
+				this.filmCards.innerHTML = `<div class="not-found">${error}</div>`;
 			});
 	}
 
@@ -132,14 +131,14 @@ class FilmsFinder {
 				return this.getPoster(film.Poster)
 					.then(posterUrl => {
 						return `<li class="film-card" data-id="${film.imdbID}">
-								<div class="film-card__poster">
-									<img src="${posterUrl}" alt="poster">
-								</div>
-								<span class="film-card__type">${film.Type}</span>
-								<h2 class="film-card__title">${this.sliceText(film.Title)}</h2>
-								<span class="film-card__year">${year}</span>
-								<button class="film-card__details">Details</button>
-							</li>`;
+									<div class="film-card__poster">
+										<img src="${posterUrl}" alt="poster">
+									</div>
+									<span class="film-card__type">${film.Type}</span>
+									<h2 class="film-card__title">${this.sliceText(film.Title)}</h2>
+									<span class="film-card__year">${year}</span>
+									<button class="film-card__details">Details</button>
+								</li>`;
 					});
 			});
 
@@ -215,8 +214,6 @@ class FilmsFinder {
 				prev.classList.add('pagination__numb_active');
 			}
 		}
-
-		
 	}
 
 	showDetailsFilm(e) {
@@ -225,6 +222,7 @@ class FilmsFinder {
 		if (btnDetails) {
 			const id = btnDetails.parentElement.dataset.id;
 
+			btnDetails.innerHTML = `Load ${this.animateLoad}`;
 			this.#urlDescr = `${this.#api}&i=${id}`;
 
 			this.getRequest(this.#urlDescr)
@@ -234,9 +232,10 @@ class FilmsFinder {
 					}
 
 					this.renderDetailsCardFilm(response);
+					btnDetails.innerText = 'Details';
 				})
 				.catch(error => {
-					this.filmInfo.innerHTML = `<div class="film-info__not-found">${error}</div>`;
+					this.filmInfo.innerHTML = `<div class="not-found">${error}</div>`;
 				});
 		}
 	}
@@ -272,6 +271,8 @@ class FilmsFinder {
 			})
 			.then(results => {
 				this.filmInfo.innerHTML = results;
+
+				this.filmInfo.scrollIntoView({ behavior: 'smooth' });
 			});
 	}
 
