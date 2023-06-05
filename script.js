@@ -32,25 +32,21 @@ class FilmsFinder {
 		return this.wrap.querySelector('.film-info');
 	}
 
+	get animateLoad() {
+		return `<div class="load">
+					<img src="img/load.svg" alt="load">
+				</div>`;
+	}
+
 	getRequest(url) {
-		return new Promise((resolve, reject) => {
-			const request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHttp');
-
-			request.open('GET', url);
-			request.responseType = 'json';
-
-			request.addEventListener('readystatechange', () => {
-				if (request.readyState === 4 && request.status === 200) {
-					resolve(request.response);
+		return fetch(url)
+			.then(response => {
+				if (!response.ok) {
+					throw response.status;
 				}
 
-				if (request.readyState < 4 && request.status >= 400) {
-					reject(request.status);
-				}
+				return response.json();
 			});
-
-			request.send();
-		})
 	}
 
 	getDataSearch(e) {
@@ -80,24 +76,40 @@ class FilmsFinder {
 	}
 
 	getListFilms(url) {
+		this.filmCards.innerHTML = this.animateLoad;
+
 		this.getRequest(url)
-			.then(res => {
+			.then(response => {
+				if (response.Response === 'False') {
+					throw response.Error;
+				}
+
+				this.filmCards.innerHTML = '';
 				this.filmInfo.innerHTML = '';
 
-				if (res.Response === 'True') {
-					this.renderFilmsCard(res.Search);
-					this.renderBtnPagination(res.totalResults, this.#currentPage);
-				};
-
-				if (res.Response === 'False') {
-					this.filmCards.innerHTML = `<div class="film-cards__not-found">${res.Error}</div>`;
-				}
+				this.renderFilmsCard(response.Search, response.totalResults);
 			})
-			.catch(err => console.error(err));
+			.catch(error => {
+				this.filmCards.innerHTML = `<div class="not-found">${error}</div>`;
+			});
 	}
 
 	getPoster(dataPoster) {
-		return (dataPoster === 'N/A') ? 'img/poster-missing.jpg' : dataPoster;
+		return new Promise((resolve, reject) => {
+			const img = new Image();
+			const newPicture = 'img/poster-missing.jpg';
+
+			img.onload = () => resolve(dataPoster);
+			img.onerror = () => reject(newPicture);
+			dataPoster = (dataPoster === 'N/A') ? newPicture : dataPoster;
+
+			img.src = dataPoster;
+		})
+			.catch(newUrl => {
+				console.error('The poster has been replaced by ' + newUrl);
+
+				return newUrl;
+			});
 	}
 
 	sliceText(text) {
@@ -111,31 +123,39 @@ class FilmsFinder {
 		return text;
 	}
 
-	renderFilmsCard(dataFilms) {
+	renderFilmsCard(dataFilms, totalResults) {
 		const cards = dataFilms
 			.map(film => {
 				const year = (film.Year.length === 5) ? film.Year.slice(0, -1) : film.Year;
 
-				return `<li class="film-card" data-id="${film.imdbID}">
-							<div class="film-card__poster">
-								<img src="${this.getPoster(film.Poster)}" alt="poster">
-							</div>
-							<span class="film-card__type">${film.Type}</span>
-							<h2 class="film-card__title">${this.sliceText(film.Title)}</h2>
-							<span class="film-card__year">${year}</span>
-							<button class="film-card__details">Details</button>
-						</li>`;
-			})
-			.join('');
+				return this.getPoster(film.Poster)
+					.then(posterUrl => {
+						return `<li class="film-card" data-id="${film.imdbID}">
+									<div class="film-card__poster">
+										<img src="${posterUrl}" alt="poster">
+									</div>
+									<span class="film-card__type">${film.Type}</span>
+									<h2 class="film-card__title">${this.sliceText(film.Title)}</h2>
+									<span class="film-card__year">${year}</span>
+									<button class="film-card__details">Details</button>
+								</li>`;
+					});
+			});
 
-		const elements = `<h2 class="film-cards__title">Films:</h2>
-						<ul class="film-cards__list">${cards}</ul>`;
+		Promise.all(cards).then(results => {
+			const elements = `<h2 class="film-cards__title">Films:</h2>
+								<ul class="film-cards__list">${results.join('')}</ul>`;
 
-		this.filmCards.innerHTML = elements;
+			this.filmCards.insertAdjacentHTML('afterBegin', elements);
 
-		if (dataFilms.length === 1) {
-			this.filmCards.querySelector('.film-cards__list').style.gridTemplateColumns = 'repeat(auto-fit, minmax(250px, 400px))';
-		}
+			this.renderBtnPagination(totalResults, this.#currentPage);
+
+			if (dataFilms.length === 1) {
+				const filmCardsList = this.filmCards.querySelector('.film-cards__list');
+
+				filmCardsList.style.gridTemplateColumns = 'repeat(auto-fit, minmax(250px, 400px))';
+			}
+		});
 	}
 
 	renderBtnPagination(totalFilms, currentPage) {
@@ -202,13 +222,21 @@ class FilmsFinder {
 		if (btnDetails) {
 			const id = btnDetails.parentElement.dataset.id;
 
+			btnDetails.innerHTML = `Load ${this.animateLoad}`;
 			this.#urlDescr = `${this.#api}&i=${id}`;
 
 			this.getRequest(this.#urlDescr)
-				.then(res => {
-					this.renderDetailsCardFilm(res);
+				.then(response => {
+					if (response.Response === 'False') {
+						throw response.Error;
+					}
+
+					this.renderDetailsCardFilm(response);
+					btnDetails.innerText = 'Details';
 				})
-				.catch(err => console.error(err));
+				.catch(error => {
+					this.filmInfo.innerHTML = `<div class="not-found">${error}</div>`;
+				});
 		}
 	}
 
@@ -231,15 +259,21 @@ class FilmsFinder {
 			}
 		}
 
-		const elements = `<h2 class="film-info__title">Film info:</h2>
-						<div class="film-details">
-							<div class="film-details__poster">
-								<img src="${this.getPoster(dataFilm.Poster)}" alt="poster">
-							</div>
-							<ul class="film-details__list">${items}</ul>
-						</div>`;
+		this.getPoster(dataFilm.Poster)
+			.then(posterUrl => {
+				return `<h2 class="film-info__title">Film info:</h2>
+							<div class="film-details">
+								<div class="film-details__poster">
+									<img src="${posterUrl}" alt="poster">
+								</div>
+								<ul class="film-details__list">${items}</ul>
+							</div>`;
+			})
+			.then(results => {
+				this.filmInfo.innerHTML = results;
 
-		this.filmInfo.innerHTML = elements;
+				this.filmInfo.scrollIntoView({ behavior: 'smooth' });
+			});
 	}
 
 	init() {
@@ -251,8 +285,8 @@ class FilmsFinder {
 				this.filmCards.addEventListener('click', this.showDetailsFilm.bind(this));
 				this.filmCards.addEventListener('click', this.changePage.bind(this));
 			})
-			.catch(err => {
-				document.body.innerHTML = `<div class="error">Error ${err} :(</div>`;
+			.catch(error => {
+				document.body.innerHTML = `<div class="error">Error ${error} :(</div>`;
 			});
 	}
 }

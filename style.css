@@ -32,9 +32,22 @@ button {
 	cursor: pointer;
 }
 
-img {
+img,
+svg {
 	width: 100%;
 	height: 100%;
+}
+
+.load {
+	justify-self: center;
+	width: 200px;
+	height: 200px;
+}
+
+.not-found {
+	font-size: 1.25rem;
+	font-weight: bold;
+	text-align: center;
 }
 
 .error {
@@ -119,12 +132,6 @@ img {
 	gap: 20px;
 }
 
-.film-cards__not-found {
-	font-size: 1.25rem;
-	font-weight: bold;
-	text-align: center;
-}
-
 .film-card {
 	display: grid;
 	grid-template: auto 1fr auto auto / 110px 1fr;
@@ -157,7 +164,18 @@ img {
 
 .film-card__year {}
 
-.film-card__details {}
+.film-card__details {
+	position: relative;
+	overflow: hidden;
+}
+
+.film-card__details .load {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 30%;
+	height: 100%;
+}
 
 .film-info {
 	display: grid;
@@ -244,7 +262,6 @@ img {
 .pagination button {
 	width: 100%;
 }
-
 
 .pagination__numb {}
 
